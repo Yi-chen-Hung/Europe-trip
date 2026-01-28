@@ -516,4 +516,152 @@
                 },
                 {
                     date: "2/20",
-                    weekday: "
+                    weekday: "週五",
+                    route: "杜布羅夫尼克 (GoT日)",
+                    temp: "13°C",
+                    weatherIcon: "fa-solid fa-dragon",
+                    events: [
+                        {
+                            title: "權力遊戲場景",
+                            type: "visit",
+                            desc: "走城牆行程、派勒城門、明闕塔、大歐若佛里奧噴泉、斯彭扎宮、聖依納爵堂(贖罪之路)、羅維里耶奈克要塞。",
+                        }
+                    ]
+                },
+                {
+                    date: "2/21",
+                    weekday: "週六",
+                    route: "杜布羅夫尼克郊遊",
+                    temp: "14°C",
+                    weatherIcon: "fa-solid fa-sun",
+                    events: [
+                        {
+                            title: "Lokrum 島或 Ston",
+                            type: "visit",
+                            desc: "Lokrum 島淡季可能無法登島(有鐵王座)。",
+                            tip: "替代方案：開車去 Ston 吃生蠔。",
+                        }
+                    ]
+                },
+                {
+                    date: "2/22",
+                    weekday: "週日",
+                    route: "杜布羅夫尼克 → 札達爾",
+                    temp: "10°C",
+                    weatherIcon: "fa-solid fa-wind",
+                    events: [
+                        {
+                            title: "長途移動 (4-5小時)",
+                            type: "transport",
+                            desc: "中途可停留 Šibenik。",
+                        },
+                        {
+                            title: "札達爾景點",
+                            type: "visit",
+                            desc: "陸地之門、海風琴 (Sea Organ)、太陽之問候 (Sun Salutation)。",
+                        },
+                        {
+                            title: "推薦餐廳",
+                            type: "food",
+                            desc: "Zadar 美食：",
+                            links: [
+                                { text: "Restaurant Đir", url: "https://maps.app.goo.gl/9G4pqUUmmxRoWSkf7" },
+                                { text: "Restoran 4 Kantuna", url: "https://maps.app.goo.gl/9G4pqUUmmxRoWSkf7" },
+                                { text: "Troha", url: "https://maps.app.goo.gl/9G4pqUUmmxRoWSkf7" }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    date: "2/23",
+                    weekday: "週一",
+                    route: "札達爾 → 里耶卡 → 羅維尼",
+                    temp: "9°C",
+                    weatherIcon: "fa-solid fa-cloud",
+                    events: [
+                        {
+                            title: "經里耶卡 (Rijeka)",
+                            type: "transport",
+                            desc: "Zadar → Rijeka (3hr) → Rovinj (1.5hr)。",
+                            tip: "注意：里耶卡停車問題。",
+                        },
+                        {
+                            title: "羅維尼景點",
+                            type: "visit",
+                            desc: "羅維尼港、Balbi's Arch、聖尤菲米亞教堂。",
+                        },
+                        {
+                            title: "住宿晚餐",
+                            type: "info",
+                            desc: "Eden Hotel 住宿包含早餐與晚餐 (Half Board)。",
+                        }
+                    ]
+                },
+                {
+                    date: "2/24",
+                    weekday: "週二",
+                    route: "普拉 (Pula) 一日遊",
+                    temp: "10°C",
+                    weatherIcon: "fa-solid fa-monument",
+                    events: [
+                        {
+                            title: "普拉景點",
+                            type: "visit",
+                            desc: "普拉競技場(門票€10)、奧古斯都神廟、賽爾吉烏斯凱旋門、普拉城堡、Zerostrasse隧道。",
+                            tip: "注意：普拉停車問題。",
+                        },
+                        {
+                            title: "推薦餐廳",
+                            type: "food",
+                            desc: "Pula 美食：",
+                            links: [
+                                { text: "Padela", url: "https://maps.app.goo.gl/9G4pqUUmmxRoWSkf7" },
+                                { text: "Pizzeria Jupiter", url: "https://maps.app.goo.gl/9G4pqUUmmxRoWSkf7" },
+                                { text: "Street Food Two", url: "https://maps.app.goo.gl/9G4pqUUmmxRoWSkf7" }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    date: "2/25",
+                    weekday: "週三",
+                    route: "羅維尼 → 薩爾斯堡",
+                    temp: "3°C",
+                    weatherIcon: "fa-solid fa-car",
+                    events: [
+                        {
+                            title: "返回奧地利",
+                            type: "transport",
+                            desc: "長途車程。記得購買奧地利 Vignette (2/25 使用)。",
+                        }
+                    ]
+                },
+                {
+                    date: "2/26",
+                    weekday: "週四",
+                    route: "薩爾斯堡 → 慕尼黑",
+                    temp: "2°C",
+                    weatherIcon: "fa-solid fa-plane",
+                    events: [
+                        {
+                            title: "前往機場",
+                            type: "transport",
+                            desc: "慕尼黑中午12點前抵達還車。",
+                        }
+                    ]
+                }
+            ];
+
+            return {
+                currentTab,
+                itinerary,
+                accommodations,
+                expenseList,
+                googleMapLists,
+                totalExpense
+            };
+        }
+    }).mount('#app');
+</script>
+</body>
+</html>
