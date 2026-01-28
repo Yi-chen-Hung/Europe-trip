@@ -139,4 +139,545 @@
                     <h3 class="font-bold text-stone-700 mb-1">{{ hotel.name }}</h3>
                     <p class="text-sm text-stone-500">{{ hotel.price }}</p>
                 </div>
-                <a :href="hotel.map" target="_blank" class="bg-stone-800 tex
+                <a :href="hotel.map" target="_blank" class="bg-stone-800 text-white px-3 py-1.5 rounded-lg text-xs shadow-md">
+                    導航
+                </a>
+            </div>
+            <div class="mt-3 pt-3 border-t border-gray-100 text-xs text-stone-500 space-y-1">
+                <div v-if="hotel.distance"><i class="fa-solid fa-person-walking mr-1"></i>{{ hotel.distance }}</div>
+                <div><i class="fa-solid fa-city mr-1"></i>城市稅: {{ hotel.tax }}</div>
+                <div v-if="hotel.note" class="text-orange-500"><i class="fa-solid fa-triangle-exclamation mr-1"></i>{{ hotel.note }}</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Content Area: Tools (Budget) -->
+    <main v-if="currentTab === 'tools'" class="px-4 py-4 space-y-4">
+        <h2 class="text-lg font-bold text-stone-700 px-2">記帳與預算 (NTD)</h2>
+        
+        <div class="card p-4 bg-stone-800 text-white">
+            <div class="text-xs text-stone-300 mb-1">估計總支出</div>
+            <div class="text-3xl font-bold">{{ totalExpense.toLocaleString() }}</div>
+        </div>
+
+        <div class="card p-4">
+            <h3 class="text-sm font-bold text-stone-700 mb-3">新增支出</h3>
+            <div class="flex gap-2 mb-4">
+                <input v-model="newItem.name" type="text" placeholder="項目" class="flex-1 bg-stone-50 border-none rounded p-2 text-sm">
+                <input v-model.number="newItem.price" type="number" placeholder="金額" class="w-24 bg-stone-50 border-none rounded p-2 text-sm">
+                <button @click="addItem" class="bg-stone-600 text-white rounded px-3 text-sm"><i class="fa-solid fa-plus"></i></button>
+            </div>
+
+            <ul class="space-y-2">
+                <li v-for="(item, idx) in expenseList" :key="idx" class="flex justify-between text-sm border-b border-gray-50 pb-2">
+                    <span>{{ item.name }}</span>
+                    <span class="font-mono">{{ item.price }} <i @click="removeItem(idx)" class="fa-solid fa-xmark ml-2 text-stone-300"></i></span>
+                </li>
+            </ul>
+        </div>
+
+        <h2 class="text-lg font-bold text-stone-700 px-2 mt-6">重要連結</h2>
+        <div class="card p-4 space-y-3">
+             <div class="flex items-center justify-between">
+                <span class="text-sm text-stone-600">奧地利 Vignette</span>
+                <a href="https://www.asfinag.at/en/toll/vignette/" target="_blank" class="text-blue-500 text-xs">購買 (€9.6/天)</a>
+            </div>
+            <div class="flex items-center justify-between">
+                <span class="text-sm text-stone-600">斯洛維尼亞 Vignette</span>
+                <a href="https://evinjeta.dars.si/en/how-buy" target="_blank" class="text-blue-500 text-xs">購買 (€16/週)</a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 pb-safe pt-2 px-6 flex justify-between items-center z-50 h-20 shadow-[0_-5px_15px_rgba(0,0,0,0.02)]">
+        <button @click="currentTab = 'itinerary'" class="nav-item flex flex-col items-center space-y-1 w-1/3" :class="currentTab === 'itinerary' ? 'nav-active' : 'text-stone-300'">
+            <i class="fa-solid fa-map text-xl"></i>
+            <span class="text-[10px] font-medium">行程</span>
+        </button>
+        <button @click="currentTab = 'hotels'" class="nav-item flex flex-col items-center space-y-1 w-1/3" :class="currentTab === 'hotels' ? 'nav-active' : 'text-stone-300'">
+            <i class="fa-solid fa-bed text-xl"></i>
+            <span class="text-[10px] font-medium">住宿</span>
+        </button>
+        <button @click="currentTab = 'tools'" class="nav-item flex flex-col items-center space-y-1 w-1/3" :class="currentTab === 'tools' ? 'nav-active' : 'text-stone-300'">
+            <i class="fa-solid fa-wallet text-xl"></i>
+            <span class="text-[10px] font-medium">預算</span>
+        </button>
+    </nav>
+
+</div>
+
+<script>
+    const { createApp, ref, computed } = Vue;
+
+    createApp({
+        setup() {
+            const currentTab = ref('itinerary');
+            
+            // 預設記帳資料 (包含已知票券與過路費 - 匯率估算 1歐=34台幣)
+            const expenseList = ref([
+                { name: 'AHOTEL', price: 8390 },
+                { name: '奧地利 Vignette (x2)', price: 652 },
+                { name: '斯洛維尼亞 Vignette', price: 544 },
+                { name: 'Postojna 溶洞門票', price: 1118 },
+                { name: '十六湖門票', price: 340 },
+                { name: 'Klis Fortress', price: 408 },
+                { name: 'Split 地窖', price: 272 },
+                { name: 'Dubrovnik Pass', price: 850 },
+                { name: 'Pula 競技場', price: 340 }
+            ]);
+            const newItem = ref({ name: '', price: '' });
+
+            const addItem = () => {
+                if(newItem.value.name && newItem.value.price) {
+                    expenseList.value.push({ ...newItem.value });
+                    newItem.value = { name: '', price: '' };
+                }
+            };
+            const removeItem = (idx) => expenseList.value.splice(idx, 1);
+            const totalExpense = computed(() => expenseList.value.reduce((sum, item) => sum + Number(item.price), 0));
+
+            // 住宿資料 (更新後)
+            const accommodations = [
+                {
+                    name: "AHOTEL Ljubljana",
+                    dates: "2/12 - 2/14",
+                    price: "€246.78 (含早)",
+                    tax: "現場支付",
+                    distance: "老城區: 走路+公車25分",
+                    map: "https://maps.app.goo.gl/truWT78mprqn59fi9"
+                },
+                {
+                    name: "Best Western Premier Hotel Astoria (Zagreb)",
+                    dates: "2/14 - 2/15",
+                    price: "€153.7 (含早)",
+                    tax: "現場支付",
+                    distance: "老城區: 走路10分",
+                    map: "https://maps.app.goo.gl/s3tBbNz7Qif8x3Yv7"
+                },
+                {
+                    name: "Fenomen Plitvice Resort",
+                    dates: "2/15 - 2/16",
+                    price: "NT$6381 (含早)",
+                    tax: "無",
+                    distance: "公園附近",
+                    map: "https://maps.app.goo.gl/BRwTJqAoRDYbR6Ak8"
+                },
+                {
+                    name: "天堂度假屋頂層公寓 (Split)",
+                    dates: "2/16 - 2/19",
+                    price: "NT$10843 (3晚)",
+                    tax: "無",
+                    distance: "老城區: 公車10分",
+                    map: "https://maps.app.goo.gl/AfHrW4eNt1Zkg4fE6"
+                },
+                {
+                    name: "Hotel Porto (Dubrovnik)",
+                    dates: "2/19 - 2/22",
+                    price: "NT$14115 (3晚)",
+                    tax: "€16.65",
+                    note: "有未顯示在Google Map的公車",
+                    map: "https://maps.app.goo.gl/NCkbDE775J3LMSvx5"
+                },
+                {
+                    name: "Hotel Miramare Zadar",
+                    dates: "2/22 - 2/23",
+                    price: "NT$5448",
+                    tax: "€4.5",
+                    distance: "老城區: 走路15分",
+                    map: "https://maps.app.goo.gl/WweE4PF3EDwggLGeA"
+                },
+                {
+                    name: "Eden Hotel by Maistra Collection (Rovinj)",
+                    dates: "2/23 - 2/25",
+                    price: "NT$8916 (含早晚餐)",
+                    tax: "€6",
+                    distance: "老城區: 走路20分",
+                    map: "https://maps.app.goo.gl/sVqqY81oLcUnw8uJ6"
+                },
+                {
+                    name: "Hotel Hohenstauffen (Salzburg)",
+                    dates: "2/25 - 2/26",
+                    price: "待付",
+                    tax: "現場支付",
+                    map: "https://maps.app.goo.gl/ydktuY4VaktzqGPJ6"
+                }
+            ];
+
+            // 行程資料 (包含 Vignette 與新餐廳)
+            const itinerary = [
+                {
+                    date: "2/12",
+                    weekday: "週四",
+                    route: "慕尼黑 → 盧布爾雅那 (470km)",
+                    temp: "2°C",
+                    weatherIcon: "fa-solid fa-car-side",
+                    events: [
+                        {
+                            title: "⚠️ 自駕重要須知",
+                            type: "alert",
+                            desc: "Car registration license required.",
+                            tip: "1. 奧地利 Vignette (€9.6/天)\n2. 斯洛維尼亞 Vignette (€16/週)\n3. 克羅埃西亞: 現場收費站",
+                            links: [
+                                { text: "購買奧地利 Vignette", url: "https://www.asfinag.at/en/toll/vignette/" },
+                                { text: "購買斯洛維尼亞 Vignette", url: "https://evinjeta.dars.si/en/how-buy" }
+                            ]
+                        },
+                        {
+                            title: "慕尼黑出發",
+                            time: "12:00",
+                            type: "transport",
+                            desc: "中午12點取車出發，車程約4-4.5小時。",
+                        },
+                        {
+                            title: "盧布爾雅那觀光",
+                            type: "visit",
+                            desc: "龍橋、屠夫橋、三重橋、普列舍仁廣場、中央市場、城堡(9-19點)。",
+                            location: "https://maps.app.goo.gl/truWT78mprqn59fi9",
+                            links: [
+                                { text: "城堡票價與資訊", url: "https://www.ljubljanskigrad.si/en/plan-your-visit/price-list/" }
+                            ]
+                        },
+                        {
+                            title: "推薦餐廳",
+                            type: "food",
+                            desc: "精選當地美食：",
+                            links: [
+                                { text: "Dežela Okusov (菜單)", url: "https://dezela-okusov.si/wp-content/uploads/2025/03/JL-7b-2024-Das_ist_WalterANG-Dezela-okusov-1.pdf" },
+                                { text: "Das ist Walter (正餐)", url: "https://dasistwalter.eu/menu/" },
+                                { text: "Slovenska Hiša - Figovec", url: "http://xhslink.com/o/2Mv5tfmqnv7" },
+                                { text: "Cafe Romeo (甜點)", url: "" }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    date: "2/13",
+                    weekday: "週五",
+                    route: "盧布爾雅那周邊 (1hr)",
+                    temp: "4°C",
+                    weatherIcon: "fa-solid fa-mountain",
+                    events: [
+                        {
+                            title: "Postojna 溶洞 & 洞窟城堡",
+                            type: "visit",
+                            desc: "推薦行程。若不去溶洞可改去布萊德湖。",
+                            link: "https://www.postojnska-jama.eu/en/tickets/",
+                            tip: "票價: €32.9起。場次: 10:00, 12:00, 15:00 請先預約。",
+                            location: "https://www.google.com/maps/search/?api=1&query=Postojna+Cave"
+                        }
+                    ]
+                },
+                {
+                    date: "2/14",
+                    weekday: "週六",
+                    route: "盧布爾雅那 → 薩格勒布 (2hr)",
+                    temp: "5°C",
+                    weatherIcon: "fa-solid fa-city",
+                    events: [
+                        {
+                            title: "薩格勒布市區",
+                            type: "visit",
+                            desc: "耶拉奇恰廣場、主教座堂、Dolac市場、KRAVATA領帶店、纜車、失戀博物館。",
+                            location: "https://www.google.com/maps/search/?api=1&query=Zagreb+Cathedral"
+                        },
+                        {
+                            title: "推薦餐廳",
+                            type: "food",
+                            desc: "薩格勒布美食清單：",
+                            tags: [{type: 'food', text: '傳統料理'}, {type: 'food', text: '甜點'}],
+                            links: [
+                                { text: "Konoba Time4wine (傳統)", url: "" },
+                                { text: "La Štruk (焗烤麵皮)", url: "" },
+                                { text: "Stari Fijaker (需預約)", url: "" },
+                                { text: "Batak Centar Cvjetni (烤肉)", url: "" },
+                                { text: "Amélie (蛋糕)", url: "" }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    date: "2/15",
+                    weekday: "週日",
+                    route: "薩格勒布 → 十六湖 (2.5hr)",
+                    temp: "-1°C",
+                    weatherIcon: "fa-solid fa-snowflake",
+                    events: [
+                        {
+                            title: "十六湖國家公園",
+                            type: "visit",
+                            desc: "Plitvice Lakes. 入口1。門票 €10/人。",
+                            link: "https://np-plitvicka-jezera.hr/en/plan-your-visit/istrazite-jezera/price-list/",
+                            location: "https://www.google.com/maps/search/?api=1&query=Plitvice+Lakes+Entrance+1"
+                        },
+                        {
+                            title: "推薦餐廳 (午餐)",
+                            type: "food",
+                            desc: "公園內或附近：\n1. Lička kuća Restaurant\n2. Restaurant Petar Plitvice Lakes",
+                        }
+                    ]
+                },
+                {
+                    date: "2/16",
+                    weekday: "週一 (除夕)",
+                    route: "十六湖 → 斯普利特 (3.5hr)",
+                    temp: "10°C",
+                    weatherIcon: "fa-solid fa-sun",
+                    events: [
+                        {
+                            title: "前往 Split",
+                            type: "transport",
+                            desc: "注意事項: food tour, blue cave tour, wine tasting.",
+                            location: "https://www.google.com/maps/search/?api=1&query=Split"
+                        },
+                        {
+                            title: "Klis Fortress",
+                            type: "visit",
+                            desc: "權力遊戲 Meereen 場景 (9:00-17:00)。",
+                            link: "https://www.tvrdavaklis.com/kako-do-nas/?lang=en",
+                            tip: "門票: €12"
+                        },
+                        {
+                            title: "除夕大餐推薦",
+                            type: "food",
+                            desc: "Split 推薦餐廳：",
+                            links: [
+                                { text: "Fife (傳統料理)", url: "https://bookmeatable.com/restaurants/fife-46?lang=en-gb" },
+                                { text: "Zlatna ribica (海鮮)", url: "" },
+                                { text: "Kantun Paulina (小吃)", url: "" },
+                                { text: "Bartulovic (小吃)", url: "" }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    date: "2/17",
+                    weekday: "週二 (初一)",
+                    route: "斯普利特深度遊",
+                    temp: "11°C",
+                    weatherIcon: "fa-solid fa-landmark",
+                    events: [
+                        {
+                            title: "古城巡禮",
+                            type: "visit",
+                            desc: "戴克里先皇宮、地窖(GoT拍攝地)、鐘塔、濱海大道。",
+                            tip: "地窖門票: €8"
+                        },
+                        {
+                            title: "Majar 山",
+                            type: "visit",
+                            desc: "登山俯瞰城市全景。",
+                        }
+                    ]
+                },
+                {
+                    date: "2/18",
+                    weekday: "週三",
+                    route: "斯普利特跳島",
+                    temp: "11°C",
+                    weatherIcon: "fa-solid fa-ship",
+                    events: [
+                        {
+                            title: "Hvar / Vis / Supetar 島",
+                            type: "visit",
+                            desc: "搭乘 Jadrolinija 或 TP line 渡輪。",
+                            tip: "船票: €5.9 - €6.4 (約1小時)",
+                            links: [
+                                { text: "TP Line 船票", url: "https://webshop.tp-line.hr/en" },
+                                { text: "Jadrolinija 船票", url: "https://www.jadrolinija.hr/en/travels" }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    date: "2/19",
+                    weekday: "週四",
+                    route: "斯普利特 → 杜布羅夫尼克 (3.5hr)",
+                    temp: "13°C",
+                    weatherIcon: "fa-solid fa-umbrella-beach",
+                    events: [
+                        {
+                            title: "Dubrovnik Pass & 交通",
+                            type: "alert",
+                            desc: "1日票 €20 / 3日票 €25 (含城牆、總督宮、公車)。",
+                            tip: "下載 Libertas App 查看市內公車路線。",
+                            links: [
+                                { text: "購買 Pass", url: "https://www.dubrovnikpass.com/web-shop?id=0" },
+                                { text: "公車地圖", url: "https://www.libertasdubrovnik.hr/en/lines-map" }
+                            ]
+                        },
+                        {
+                            title: "推薦餐廳",
+                            type: "food",
+                            desc: "1. Dalmatino Dubrovnik\n2. Asia restaurant Dubrovnik",
+                            location: "https://www.google.com/maps/search/?api=1&query=Dalmatino+Dubrovnik"
+                        },
+                        {
+                            title: "登帝國堡壘小徑",
+                            type: "visit",
+                            desc: "欣賞夕陽與全景。",
+                            link: "https://youtu.be/pjjmqEfBGKg?si=tJ5Bcv6wS3fpx9PQ"
+                        }
+                    ]
+                },
+                {
+                    date: "2/20",
+                    weekday: "週五",
+                    route: "權力遊戲主題日",
+                    temp: "13°C",
+                    weatherIcon: "fa-solid fa-dragon",
+                    events: [
+                        {
+                            title: "走城牆行程",
+                            type: "visit",
+                            desc: "派勒城門、明闕塔、大歐若佛里奧噴泉、斯彭扎宮、總督宮、耶穌會樓梯(Shame!)。",
+                            location: "https://maps.app.goo.gl/dubrovnik"
+                        }
+                    ]
+                },
+                {
+                    date: "2/21",
+                    weekday: "週六",
+                    route: "杜布羅夫尼克郊遊",
+                    temp: "14°C",
+                    weatherIcon: "fa-solid fa-sun",
+                    events: [
+                        {
+                            title: "Lokrum 島 或 Ston",
+                            type: "visit",
+                            desc: "注意：Lokrum 島淡季似乎無法登島。",
+                            tip: "替代方案：開車去 Ston 吃生蠔。",
+                            location: "https://www.google.com/maps/search/?api=1&query=Ston+Oysters"
+                        }
+                    ]
+                },
+                {
+                    date: "2/22",
+                    weekday: "週日",
+                    route: "杜布羅夫尼克 → 札達爾 (5hr)",
+                    temp: "10°C",
+                    weatherIcon: "fa-solid fa-wind",
+                    events: [
+                        {
+                            title: "北上中途停留",
+                            type: "transport",
+                            desc: "可在 Šibenik 稍作停留。車程較長(4-5小時)。",
+                        },
+                        {
+                            title: "札達爾景點",
+                            type: "visit",
+                            desc: "陸地之門、海風琴 (Sea Organ)、太陽之問候。",
+                            location: "https://www.google.com/maps/search/?api=1&query=Sea+Organ"
+                        },
+                        {
+                            title: "推薦餐廳",
+                            type: "food",
+                            desc: "Zadar 美食：",
+                            links: [
+                                { text: "Restaurant Đir", url: "" },
+                                { text: "Restoran 4 Kantuna", url: "" },
+                                { text: "Troha", url: "" }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    date: "2/23",
+                    weekday: "週一",
+                    route: "札達爾 → 羅維尼 (4.5hr)",
+                    temp: "9°C",
+                    weatherIcon: "fa-solid fa-cloud",
+                    events: [
+                        {
+                            title: "經里耶卡 (Rijeka)",
+                            type: "transport",
+                            desc: "Zadar → Rijeka (3hr) → Rovinj (1.5hr)。",
+                            tip: "注意：里耶卡停車問題。",
+                            location: "https://www.google.com/maps/search/?api=1&query=Rijeka"
+                        },
+                        {
+                            title: "羅維尼景點",
+                            type: "visit",
+                            desc: "羅維尼港、Balbi's Arch、聖尤菲米亞教堂。",
+                            location: "https://www.google.com/maps/search/?api=1&query=Church+of+St.+Euphemia"
+                        },
+                        {
+                            title: "入住 Eden Hotel",
+                            type: "hotel",
+                            desc: "含早餐與晚餐 (Half Board)。",
+                        }
+                    ]
+                },
+                {
+                    date: "2/24",
+                    weekday: "週二",
+                    route: "普拉 (Pula) 一日遊",
+                    temp: "10°C",
+                    weatherIcon: "fa-solid fa-monument",
+                    events: [
+                        {
+                            title: "普拉競技場",
+                            type: "visit",
+                            desc: "門票 €10。還有奧古斯都神廟、凱旋門。",
+                            tip: "注意：普拉停車問題。",
+                            link: "https://maps.app.goo.gl/pula",
+                            location: "https://www.google.com/maps/search/?api=1&query=Pula+Arena"
+                        },
+                        {
+                            title: "推薦餐廳",
+                            type: "food",
+                            desc: "Pula 美食：",
+                            links: [
+                                { text: "Padela", url: "" },
+                                { text: "Pizzeria Jupiter", url: "" },
+                                { text: "Street Food Two", url: "" }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    date: "2/25",
+                    weekday: "週三",
+                    route: "羅維尼 → 薩爾斯堡 (5hr)",
+                    temp: "3°C",
+                    weatherIcon: "fa-solid fa-car",
+                    events: [
+                        {
+                            title: "返回奧地利",
+                            type: "transport",
+                            desc: "記得購買奧地利 Vignette (€9.6)。",
+                        }
+                    ]
+                },
+                {
+                    date: "2/26",
+                    weekday: "週四",
+                    route: "薩爾斯堡 → 慕尼黑 (2hr)",
+                    temp: "2°C",
+                    weatherIcon: "fa-solid fa-plane",
+                    events: [
+                        {
+                            title: "慕尼黑還車",
+                            type: "transport",
+                            desc: "中午12點前抵達還車。",
+                            location: "https://www.google.com/maps/search/?api=1&query=Munich+Airport"
+                        }
+                    ]
+                }
+            ];
+
+            return {
+                currentTab,
+                itinerary,
+                accommodations,
+                expenseList,
+                newItem,
+                addItem,
+                removeItem,
+                totalExpense
+            };
+        }
+    }).mount('#app');
+</script>
+</body>
+</html>
