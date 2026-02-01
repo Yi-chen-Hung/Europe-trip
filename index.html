@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>2026 德斯克冬日自駕 2026(更新版)</title>
+    <title>2026 德斯克冬日自駕 (3人行)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Vue.js -->
@@ -55,10 +55,10 @@
     <header class="sticky top-0 z-50 bg-[#FdfcF8]/95 backdrop-blur-md px-6 py-5 border-b border-gray-200 flex justify-between items-center">
         <div>
             <h1 class="text-2xl font-bold tracking-widest text-stone-800">2026 TRIP</h1>
-            <p class="text-sm text-stone-500 font-medium">2/9 - 2/26 德斯克自駕</p>
+            <p class="text-sm text-stone-500 font-medium">2/9 - 2/26 德斯克自駕 (3人行)</p>
         </div>
         <div class="text-stone-400 text-2xl">
-            <i class="fa-solid fa-car"></i>
+            <i class="fa-solid fa-users"></i>
         </div>
     </header>
 
@@ -182,7 +182,7 @@
         </div>
 
         <div class="card p-6">
-            <h3 class="text-lg font-bold text-stone-800 mb-4 border-b pb-2">支出明細 (2人份費用已除2)</h3>
+            <h3 class="text-lg font-bold text-stone-800 mb-4 border-b pb-2">支出明細 (德國交通2人 / 門票3人)</h3>
             <ul class="space-y-4">
                 <li v-for="(item, idx) in expenseList" :key="idx" class="flex justify-between text-base border-b border-gray-50 pb-2 last:border-0">
                     <span class="text-stone-700 w-2/3">{{ item.name }}</span>
@@ -225,12 +225,25 @@
                 { name: "住宿清單", icon: "fa-solid fa-bed", url: "https://maps.app.goo.gl/SSYz4yR2wyVaiZWc7" }
             ];
 
-            // 支出列表 (2026版 - 慕尼黑交通採用選項一)
+            // 支出列表 (精確計算版)
+            // 德國交通 = 2人
+            // 門票/船票 = 3人
             const expenseList = ref([
-                { name: 'Hampton Munich (3晚)', price: 10692, displayPrice: 'NT$10692' },
-                { name: '慕尼黑交通 (選項1總和)', price: 95.8 * exchangeRate, displayPrice: '€95.8' },
-                { name: '慕尼黑王宮門票 (2人)', price: 10 * 2 * exchangeRate, displayPrice: '€20' },
-                { name: '寧芬堡宮門票 (2人)', price: 10 * 2 * exchangeRate, displayPrice: '€20' },
+                { name: 'Hampton Munich (3晚總價)', price: 10692, displayPrice: 'NT$10692' },
+                // 德國交通維持 2 人份
+                { name: '慕尼黑交通 (選項1/2人)', price: 95.8 * exchangeRate, displayPrice: '€95.8' },
+                // 景點門票改為 3 人份
+                { name: '慕尼黑王宮 (3人)', price: 10 * 3 * exchangeRate, displayPrice: '€30' },
+                { name: '寧芬堡宮 (3人)', price: 10 * 3 * exchangeRate, displayPrice: '€30' },
+                { name: 'Postojna 溶洞 (3人)', price: 32.9 * 3 * exchangeRate, displayPrice: '€98.7' },
+                { name: 'Ljubljana 城堡 (3人)', price: 15 * 3 * exchangeRate, displayPrice: '€45' },
+                { name: '十六湖門票 (3人)', price: 10 * 3 * exchangeRate, displayPrice: '€30' },
+                { name: 'Klis Fortress (3人)', price: 12 * 3 * exchangeRate, displayPrice: '€36' },
+                { name: 'Split 地窖 (3人)', price: 8 * 3 * exchangeRate, displayPrice: '€24' },
+                { name: 'Dubrovnik Pass 1日 (3人)', price: 20 * 3 * exchangeRate, displayPrice: '€60' },
+                { name: 'Pula 競技場 (3人)', price: 10 * 3 * exchangeRate, displayPrice: '€30' },
+                { name: '跳島船票 (預估/3人)', price: 12 * 3 * exchangeRate, displayPrice: '約 €36' },
+                // 住宿 (維持PDF總價)
                 { name: 'AHOTEL Ljubljana', price: 246.78 * exchangeRate, displayPrice: '€246.78' },
                 { name: 'Hotel Astoria Zagreb', price: 153.7 * exchangeRate, displayPrice: '€153.7' },
                 { name: 'Fenomen Plitvice', price: 6381, displayPrice: 'NT$6381' },
@@ -238,16 +251,9 @@
                 { name: 'Hotel Porto', price: 14115, displayPrice: 'NT$14115' },
                 { name: 'Hotel Miramare', price: 5448, displayPrice: 'NT$5448' },
                 { name: 'Eden Hotel', price: 8916, displayPrice: 'NT$8916' },
+                // 租車 (以車計費)
                 { name: '奧地利 Vignette (2張1日)', price: 9.6 * 2 * exchangeRate, displayPrice: '€19.2' },
-                { name: '斯洛維尼亞 Vignette (7天)', price: 16 * exchangeRate, displayPrice: '€16' },
-                { name: 'Postojna 溶洞門票', price: 32.9 * exchangeRate, displayPrice: '€32.9' },
-                { name: 'Ljubljana 城堡', price: 15 * exchangeRate, displayPrice: '€15' },
-                { name: '十六湖門票', price: 10 * exchangeRate, displayPrice: '€10' },
-                { name: 'Klis Fortress', price: 12 * exchangeRate, displayPrice: '€12' },
-                { name: 'Split 地窖', price: 8 * exchangeRate, displayPrice: '€8' },
-                { name: 'Dubrovnik Pass (1日)', price: 20 * exchangeRate, displayPrice: '€20' },
-                { name: 'Pula 競技場', price: 10 * exchangeRate, displayPrice: '€10' },
-                { name: '跳島船票 (預估)', price: 12 * exchangeRate, displayPrice: '約 €12' }
+                { name: '斯洛維尼亞 Vignette (7天)', price: 16 * exchangeRate, displayPrice: '€16' }
             ]);
 
             const totalExpense = computed(() => Math.round(expenseList.value.reduce((sum, item) => sum + item.price, 0)));
@@ -443,7 +449,7 @@
                             title: "盧布爾雅那觀光",
                             type: "visit",
                             desc: "龍橋、三重橋、中央市場、城堡(9-19點)。",
-                            tip: "城堡門票 €15。",
+                            tip: "城堡門票 €15/人。",
                             links: [
                                 { text: "城堡資訊", url: "https://www.ljubljanskigrad.si/en/plan-your-visit/price-list/" }
                             ]
